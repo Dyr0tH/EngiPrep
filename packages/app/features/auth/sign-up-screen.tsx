@@ -5,16 +5,16 @@ import {
   Input,
   Label,
   Paragraph,
-  Select,
   Separator,
   Spinner,
   YStack,
   XStack,
+  ScrollView,
 } from '@my/ui'
-import { Eye, EyeOff, Mail, Lock, User, GraduationCap, Calendar } from '@tamagui/lucide-icons'
-import { useState } from 'react'
+import { Eye, EyeOff, Mail, Lock, User, GraduationCap, Calendar, ChevronDown } from '@tamagui/lucide-icons'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { signUp } from '../../lib/supabase'
+import { signUp, supabase } from '../../lib/supabase'
 
 export function SignUpScreen() {
   const router = useRouter()
@@ -27,14 +27,21 @@ export function SignUpScreen() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [semesterDropdownOpen, setSemesterDropdownOpen] = useState(false)
   const [errors, setErrors] = useState<{
     name?: string
     email?: string
     password?: string
-    collegeName?: string
+    confirmPassword?: string
     semester?: string
-    general?: string
   }>({})
+
+  // Close dropdown when clicking outside or on form submission
+  useEffect(() => {
+    if (isLoading) {
+      setSemesterDropdownOpen(false)
+    }
+  }, [isLoading])
 
   const validateForm = () => {
     const newErrors: {
@@ -96,6 +103,21 @@ export function SignUpScreen() {
       }
       
       if (data.user) {
+        // Insert into user_info table
+        const { error: insertError } = await supabase.from('user_info').insert({
+          id: data.user.id,
+          name: formData.name,
+          email: formData.email,
+          collegeName: formData.collegeName,
+          semester: formData.semester,
+        });
+
+        if (insertError) {
+          console.error('Error inserting user info:', insertError);
+          setErrors({ general: 'Error saving user information' });
+          return;
+        }
+
         // Navigate to home screen after successful sign up
         router.push('/notes')
       }
@@ -136,14 +158,15 @@ export function SignUpScreen() {
       flex={1}
       justifyContent="center"
       alignItems="center"
-      padding="$6"
-      gap="$6"
+      padding="$4"
+      paddingVertical="$2"
+      gap="$3"
       backgroundColor="#ffffff"
       maxWidth={400}
       width="100%"
       alignSelf="center"
     >
-      <YStack gap="$3" alignItems="center">
+      <YStack gap="$2" alignItems="center">
         <H1 color="#1a1a1a" textAlign="center" fontWeight="700">
           Create Account
         </H1>
@@ -154,7 +177,7 @@ export function SignUpScreen() {
 
       <Separator width="100%" backgroundColor="#e5e7eb" />
 
-      <Form width="100%" gap="$4" onSubmit={handleSignUp}>
+      <Form width="100%" gap="$2" onSubmit={handleSignUp}>
         {errors.general && (
           <YStack
             backgroundColor="#fef2f2"
@@ -169,26 +192,26 @@ export function SignUpScreen() {
           </YStack>
         )}
         
-        <YStack gap="$3">
-            <YStack gap="$2">
-              <Label htmlFor="name" color="#374151" fontWeight="600">
-                Full Name
-              </Label>
-              <XStack
-                borderWidth={1}
-                borderColor={errors.name ? '#f87171' : '#d1d5db'}
-                borderRadius={8}
-                backgroundColor="#ffffff"
-                focusStyle={{
-                  borderColor: '#1a1a1a',
-                  shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
-              }}
-            >
-              <XStack padding="$3" alignItems="center">
-                <User size={20} color="$color10" />
-              </XStack>
+        <YStack gap="$2">
+            <YStack gap="$1">
+            <Label htmlFor="name" color="#374151" fontWeight="600" size="$3">
+              Full Name
+            </Label>
+            <XStack
+              borderWidth={1}
+              borderColor={errors.name ? '#f87171' : '#d1d5db'}
+              borderRadius={8}
+              backgroundColor="#ffffff"
+              focusStyle={{
+                borderColor: '#1a1a1a',
+                shadowColor: '#f3f4f6',
+              shadowRadius: 2,
+              shadowOffset: { width: 0, height: 1 },
+            }}
+          >
+            <XStack padding="$2" alignItems="center">
+              <User size={16} color="$color10" />
+            </XStack>
               <Input
                 id="name"
                 flex={1}
@@ -202,18 +225,20 @@ export function SignUpScreen() {
                 focusStyle={{ borderWidth: 0 }}
                 color="#1a1a1a"
                 placeholderTextColor="#9ca3af"
+                padding="$1"
+                fontSize="$3"
               />
             </XStack>
             {errors.name && (
-              <Paragraph color="#dc2626" size="$2">
+              <Paragraph color="#dc2626" size="$2" marginTop="$0">
                 {errors.name}
               </Paragraph>
             )}
           </YStack>
 
           {/* Email Field */}
-          <YStack gap="$2">
-            <Label htmlFor="email" color="#374151" fontWeight="600">
+          <YStack gap="$1">
+            <Label htmlFor="email" color="#374151" fontWeight="600" size="$3">
               Email Address
             </Label>
             <XStack
@@ -224,12 +249,12 @@ export function SignUpScreen() {
               focusStyle={{
                 borderColor: '#1a1a1a',
                 shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 2,
+                shadowOffset: { width: 0, height: 1 },
               }}
             >
-              <XStack padding="$3" alignItems="center">
-                <Mail size={20} color="$color10" />
+              <XStack padding="$2" alignItems="center">
+                <Mail size={16} color="$color10" />
               </XStack>
               <Input
                 id="email"
@@ -245,18 +270,20 @@ export function SignUpScreen() {
                 focusStyle={{ borderWidth: 0 }}
                 color="#1a1a1a"
                 placeholderTextColor="#9ca3af"
+                padding="$1"
+                fontSize="$3"
               />
             </XStack>
             {errors.email && (
-                <Paragraph color="#dc2626" size="$2">
+                <Paragraph color="#dc2626" size="$2" marginTop="$0">
                   {errors.email}
                 </Paragraph>
               )}
           </YStack>
 
           {/* Password Field */}
-          <YStack gap="$2">
-              <Label htmlFor="password" color="#374151" fontWeight="600">
+          <YStack gap="$1">
+              <Label htmlFor="password" color="#374151" fontWeight="600" size="$3">
                 Password
               </Label>
               <XStack
@@ -267,15 +294,16 @@ export function SignUpScreen() {
                 focusStyle={{
                   borderColor: '#1a1a1a',
                   shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 2,
+                shadowOffset: { width: 0, height: 1 },
               }}
             >
-              <XStack padding="$3" alignItems="center">
-                <Lock size={20} color="$color10" />
+              <XStack padding="$2" alignItems="center">
+                <Lock size={16} color="$color10" />
               </XStack>
               <Input
                   id="password"
+                  flex={1}
                   value={formData.password}
                   onChangeText={(text) => updateFormData('password', text)}
                   placeholder="Create a password"
@@ -286,25 +314,27 @@ export function SignUpScreen() {
                   focusStyle={{ borderWidth: 0 }}
                   color="#1a1a1a"
                   placeholderTextColor="#9ca3af"
+                  padding="$1"
+                  fontSize="$3"
                 />
               <Button
                   chromeless
-                  padding="$3"
+                  padding="$2"
                   onPress={() => setShowPassword(!showPassword)}
                   icon={showPassword ? EyeOff : Eye}
                   color="#6b7280"
                 />
             </XStack>
             {errors.password && (
-              <Paragraph color="#dc2626" size="$2">
+              <Paragraph color="#dc2626" size="$2" marginTop="$0">
                 {errors.password}
               </Paragraph>
             )}
           </YStack>
 
           {/* College Name Field */}
-          <YStack gap="$2">
-            <Label htmlFor="collegeName" color="#374151" fontWeight="600">
+          <YStack gap="$1">
+            <Label htmlFor="collegeName" color="#374151" fontWeight="600" size="$3">
               College Name
             </Label>
             <XStack
@@ -315,12 +345,12 @@ export function SignUpScreen() {
               focusStyle={{
                 borderColor: '#1a1a1a',
                 shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 2,
+                shadowOffset: { width: 0, height: 1 },
               }}
             >
-              <XStack padding="$3" alignItems="center">
-                <GraduationCap size={20} color="$color10" />
+              <XStack padding="$2" alignItems="center">
+                <GraduationCap size={16} color="$color10" />
               </XStack>
               <Input
                 id="collegeName"
@@ -334,58 +364,124 @@ export function SignUpScreen() {
                 focusStyle={{ borderWidth: 0 }}
                 color="#1a1a1a"
                 placeholderTextColor="#9ca3af"
+                padding="$1"
+                fontSize="$3"
               />
             </XStack>
             {errors.collegeName && (
-              <Paragraph color="#dc2626" size="$2">
+              <Paragraph color="#dc2626" size="$2" marginTop="$0">
                 {errors.collegeName}
               </Paragraph>
             )}
           </YStack>
 
           {/* Semester Field */}
-          <YStack gap="$2">
-            <Label htmlFor="semester" color="#374151" fontWeight="600">
+          <YStack gap="$1">
+            <Label htmlFor="semester" color="#374151" fontWeight="600" size="$3">
               Current Semester
             </Label>
-            <XStack
-              borderWidth={1}
-              borderColor={errors.semester ? '#f87171' : '#d1d5db'}
-              borderRadius={8}
-              backgroundColor="#ffffff"
-              focusStyle={{
-                borderColor: '#1a1a1a',
-                shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
-              }}
-            >
-              <XStack padding="$3" alignItems="center">
-                <Calendar size={20} color="$color10" />
-              </XStack>
-              <Select
-                id="semester"
-                value={formData.semester}
-                onValueChange={(value) => updateFormData('semester', value)}
+            <YStack position="relative">
+              <XStack
+                borderWidth={1}
+                borderColor={errors.semester ? '#f87171' : '#d1d5db'}
+                borderRadius={8}
+                backgroundColor="#ffffff"
+                paddingHorizontal="$3"
+                paddingVertical="$3"
+                focusStyle={{
+                  borderColor: '#1a1a1a',
+                  shadowColor: '#f3f4f6',
+                  shadowRadius: 2,
+                  shadowOffset: { width: 0, height: 1 },
+                }}
+                pressStyle={{
+                  borderColor: '#1a1a1a',
+                }}
+                onPress={() => {
+                  setSemesterDropdownOpen(!semesterDropdownOpen)
+                }}
+                cursor="pointer"
               >
-                <Select.Trigger flex={1} borderWidth={0} backgroundColor="transparent">
-                  <Select.Value placeholder="Select your semester" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.ScrollUpButton />
-                  <Select.Viewport>
+                <XStack alignItems="center" flex={1} justifyContent="space-between">
+                  <XStack alignItems="center" gap="$2">
+                    <Calendar size={16} color="$color10" />
+                    <Paragraph 
+                      color={formData.semester ? "#1a1a1a" : "#9ca3af"}
+                      fontSize="$3"
+                    >
+                      {formData.semester ? semesterOptions.find(opt => opt.value === formData.semester)?.label : "Select semester"}
+                    </Paragraph>
+                  </XStack>
+                  <ChevronDown 
+                    size={16} 
+                    color="#6b7280" 
+                    style={{
+                      transform: semesterDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease'
+                    }}
+                  />
+                </XStack>
+              </XStack>
+              
+              {semesterDropdownOpen && (
+                 <YStack
+                   position="absolute"
+                   top="100%"
+                   left={0}
+                   right={0}
+                   backgroundColor="#ffffff"
+                   borderWidth={1}
+                   borderColor="#d1d5db"
+                   borderRadius={8}
+                   marginTop="$1"
+                   zIndex={1000}
+                   shadowColor="#000000"
+                   shadowOpacity={0.1}
+                   shadowRadius={4}
+                   shadowOffset={{ width: 0, height: 2 }}
+                   elevation={4}
+                   maxHeight={200}
+                 >
+                  <ScrollView
+                    showsVerticalScrollIndicator={true}
+                    nestedScrollEnabled={true}
+                  >
                     {semesterOptions.map((option) => (
-                      <Select.Item key={option.value} value={option.value} index={semesterOptions.indexOf(option)}>
-                        <Select.ItemText>{option.label}</Select.ItemText>
-                      </Select.Item>
+                      <XStack
+                        key={option.value}
+                        paddingHorizontal="$3"
+                        paddingVertical="$2.5"
+                        backgroundColor={formData.semester === option.value ? "#f3f4f6" : "transparent"}
+                        hoverStyle={{
+                          backgroundColor: "#f9fafb"
+                        }}
+                        pressStyle={{
+                          backgroundColor: "#f3f4f6"
+                        }}
+                        onPress={() => {
+                          updateFormData('semester', option.value)
+                          setSemesterDropdownOpen(false)
+                        }}
+                        cursor="pointer"
+                        borderBottomWidth={option.value !== semesterOptions[semesterOptions.length - 1].value ? 1 : 0}
+                        borderBottomColor="#f3f4f6"
+                      >
+                        <Paragraph fontSize="$3" color="#1a1a1a">
+                          {option.label}
+                        </Paragraph>
+                        {formData.semester === option.value && (
+                          <XStack marginLeft="auto">
+                            <Paragraph fontSize="$3" color="#059669">✓</Paragraph>
+                          </XStack>
+                        )}
+                      </XStack>
                     ))}
-                  </Select.Viewport>
-                  <Select.ScrollDownButton />
-                </Select.Content>
-              </Select>
-            </XStack>
+                  </ScrollView>
+                </YStack>
+              )}
+            </YStack>
             {errors.semester && (
-              <Paragraph color="#dc2626" size="$2">
+              <Paragraph color="#dc2626" size="$2" marginTop="$0">
                 {errors.semester}
               </Paragraph>
             )}
@@ -393,12 +489,12 @@ export function SignUpScreen() {
         </YStack>
 
         <Button
-          size="$5"
+          size="$4"
           backgroundColor="#1a1a1a"
           color="#ffffff"
           onPress={handleSignUp}
           disabled={isLoading}
-          marginTop="$4"
+          marginTop="$2"
           borderRadius={8}
           fontWeight="600"
           pressStyle={{
@@ -422,7 +518,7 @@ export function SignUpScreen() {
           borderColor="#d1d5db"
           borderWidth={1}
           color="#1a1a1a"
-          size="$4"
+          size="$3"
           onPress={handleSignIn}
           borderRadius={8}
           fontWeight="600"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sheet, YStack, XStack, Text, Button, ScrollView, isWeb } from '@my/ui'
+import { Sheet, YStack, XStack, Text, Button, ScrollView } from '@my/ui'
 import { X, ChevronLeft, FileText } from '@tamagui/lucide-icons'
 import { Dimensions, Platform } from 'react-native'
 
@@ -13,6 +13,9 @@ if (Platform.OS !== 'web') {
     console.warn('react-native-pdf not available on this platform')
   }
 }
+
+// Define isWeb based on Platform.OS
+const isWeb = Platform.OS === 'web'
 
 interface PdfViewerProps {
   isOpen: boolean
@@ -33,19 +36,18 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
     setSelectedPdfIndex(null)
   }
 
-
-
   return (
     <Sheet
       modal
       open={isOpen}
       onOpenChange={onClose}
-      snapPoints={selectedPdfIndex === null ? [60] : [100]}
+      snapPoints={[100]}
       dismissOnSnapToBottom
+      disableDrag={selectedPdfIndex !== null}
     >
       <Sheet.Frame padding="$4" backgroundColor="$background">
         <Sheet.Handle />
-        
+
         {/* Header */}
         <XStack justifyContent="space-between" alignItems="center" marginBottom="$4">
           <YStack flex={1}>
@@ -75,10 +77,10 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                 const fileName = pdfUrl.split('/').pop() || `PDF ${index + 1}`
                 // Decode URL-encoded characters
                 const decodedFileName = decodeURIComponent(fileName)
-                const displayName = decodedFileName.includes('.pdf') 
-                  ? decodedFileName 
+                const displayName = decodedFileName.includes('.pdf')
+                  ? decodedFileName
                   : `${decodedFileName}.pdf`
-                
+
                 return (
                   <XStack
                     key={index}
@@ -102,7 +104,7 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                         </Text>
                       </YStack>
                     </XStack>
-                    
+
                     <Button
                       size="$3"
                       onPress={() => handleSelectPdf(index)}
@@ -111,7 +113,7 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                       borderRadius={8}
                       pressStyle={{
                         backgroundColor: '#374151',
-                        transform: [{ scale: 0.98 }]
+                        transform: [{ scale: 0.98 }],
                       }}
                     >
                       Read
@@ -119,7 +121,7 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                   </XStack>
                 )
               })}
-              
+
               {pdfUrls.length === 0 && (
                 <YStack alignItems="center" padding="$6">
                   <FileText size={48} color="#9ca3af" />
@@ -142,11 +144,8 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                 backgroundColor="black"
                 color="$white1"
               >
-                Back
+                <Text color="white">Back</Text>
               </Button>
-              <Text fontSize="$4" fontWeight="500" color="$color">
-                {decodeURIComponent(pdfUrls[selectedPdfIndex]?.split('/').pop()?.replace('.pdf', '') || 'PDF Document')}
-              </Text>
               <YStack width={80} /> {/* Spacer for alignment */}
             </XStack>
 
@@ -161,7 +160,7 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                     width: '100%',
                     height: '100%',
                     border: 'none',
-                    borderRadius: 8
+                    borderRadius: 8,
                   }}
                   title="PDF Viewer"
                 />
@@ -169,6 +168,7 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                 /* Native: Use react-native-pdf for PDF display */
                 <Pdf
                   source={{ uri: pdfUrls[selectedPdfIndex], cache: true }}
+                  trustAllCerts={false}
                   style={{ flex: 1, width: '100%', height: '100%' }}
                   enablePaging={true}
                   enableRTL={false}
@@ -184,23 +184,23 @@ export function PdfViewer({ isOpen, pdfUrls, noteTitle, onClose }: PdfViewerProp
                   showsHorizontalScrollIndicator={false}
                   showsVerticalScrollIndicator={false}
                   onLoadComplete={(numberOfPages, filePath) => {
-                    console.log(`Number of pages: ${numberOfPages}`);
+                    console.log(`Number of pages: ${numberOfPages}`)
                   }}
                   onPageChanged={(page, numberOfPages) => {
-                    console.log(`Current page: ${page}`);
+                    console.log(`Current page: ${page}`)
                   }}
                   onError={(error) => {
-                    console.log(error);
+                    console.log('PDF Error:', error)
                   }}
                 />
               ) : (
                 /* Fallback: Show error message */
                 <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
                   <Text fontSize="$4" color="$red10" textAlign="center">
-                    PDF viewer not available on this platform
+                    PDF viewer not available
                   </Text>
                   <Text fontSize="$3" color="$color11" textAlign="center" marginTop="$2">
-                    Please use a native platform to view PDFs with react-native-pdf
+                    Unable to load react-native-pdf library
                   </Text>
                 </YStack>
               )}

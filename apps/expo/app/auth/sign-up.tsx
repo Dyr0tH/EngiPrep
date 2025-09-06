@@ -1,5 +1,6 @@
 import { SignUpScreen } from 'app/features/auth/sign-up-screen'
 import { Stack } from 'expo-router'
+import { ScrollView } from 'react-native'
 
 export default function Screen() {
   return (
@@ -10,7 +11,9 @@ export default function Screen() {
           headerShown: false,
         }}
       />
-      <SignUpScreen />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <SignUpScreen />
+      </ScrollView>
     </>
   )
 }

@@ -78,14 +78,15 @@ export function SignInScreen() {
       flex={1}
       justifyContent="center"
       alignItems="center"
-      padding="$6"
-      gap="$6"
+      padding="$4"
+      paddingVertical="$2"
+      gap="$3"
       backgroundColor="#ffffff"
       maxWidth={400}
       width="100%"
       alignSelf="center"
     >
-      <YStack gap="$3" alignItems="center">
+      <YStack gap="$2" alignItems="center">
         <H1 color="#1a1a1a" textAlign="center" fontWeight="700">
           Welcome Back
         </H1>
@@ -96,7 +97,7 @@ export function SignInScreen() {
 
       <Separator width="100%" backgroundColor="#e5e7eb" />
 
-      <Form width="100%" gap="$4" onSubmit={handleSignIn}>
+      <Form width="100%" gap="$2" onSubmit={handleSignIn}>
         {errors.general && (
           <YStack
             backgroundColor="#fef2f2"
@@ -111,9 +112,9 @@ export function SignInScreen() {
           </YStack>
         )}
         
-        <YStack gap="$3">
-          <YStack gap="$2">
-            <Label htmlFor="email" color="#374151" fontWeight="600">
+        <YStack gap="$2">
+          <YStack gap="$1">
+            <Label htmlFor="email" color="#374151" fontWeight="600" size="$3">
               Email Address
             </Label>
             <XStack
@@ -124,12 +125,12 @@ export function SignInScreen() {
               focusStyle={{
                 borderColor: '#1a1a1a',
                 shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 2,
+                shadowOffset: { width: 0, height: 1 },
               }}
             >
-              <XStack padding="$3" alignItems="center">
-                <Mail size={20} color="$color10" />
+              <XStack padding="$2" alignItems="center">
+                <Mail size={16} color="$color10" />
               </XStack>
               <Input
                 id="email"
@@ -145,17 +146,19 @@ export function SignInScreen() {
                 focusStyle={{ borderWidth: 0 }}
                 color="#1a1a1a"
                 placeholderTextColor="#9ca3af"
+                padding="$1"
+                fontSize="$3"
               />
             </XStack>
             {errors.email && (
-              <Paragraph color="#dc2626" size="$2">
+              <Paragraph color="#dc2626" size="$2" marginTop="$0">
                 {errors.email}
               </Paragraph>
             )}
           </YStack>
 
-          <YStack gap="$2">
-            <Label htmlFor="password" color="#374151" fontWeight="600">
+          <YStack gap="$1">
+            <Label htmlFor="password" color="#374151" fontWeight="600" size="$3">
               Password
             </Label>
             <XStack
@@ -166,12 +169,12 @@ export function SignInScreen() {
               focusStyle={{
                 borderColor: '#1a1a1a',
                 shadowColor: '#f3f4f6',
-                shadowRadius: 4,
-                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 2,
+                shadowOffset: { width: 0, height: 1 },
               }}
             >
-              <XStack padding="$3" alignItems="center">
-                <Lock size={20} color="$color10" />
+              <XStack padding="$2" alignItems="center">
+                <Lock size={16} color="$color10" />
               </XStack>
               <Input
                 id="password"
@@ -186,17 +189,19 @@ export function SignInScreen() {
                 focusStyle={{ borderWidth: 0 }}
                 color="#1a1a1a"
                 placeholderTextColor="#9ca3af"
+                padding="$1"
+                fontSize="$3"
               />
               <Button
                 chromeless
-                padding="$3"
+                padding="$2"
                 onPress={() => setShowPassword(!showPassword)}
                 icon={showPassword ? EyeOff : Eye}
                 color="#6b7280"
               />
             </XStack>
             {errors.password && (
-              <Paragraph color="#dc2626" size="$2">
+              <Paragraph color="#dc2626" size="$2" marginTop="$0">
                 {errors.password}
               </Paragraph>
             )}
@@ -204,12 +209,12 @@ export function SignInScreen() {
         </YStack>
 
         <Button
-          size="$5"
+          size="$4"
           backgroundColor="#1a1a1a"
           color="#ffffff"
           onPress={handleSignIn}
           disabled={isLoading}
-          marginTop="$4"
+          marginTop="$2"
           borderRadius={8}
           fontWeight="600"
           pressStyle={{
@@ -233,7 +238,7 @@ export function SignInScreen() {
           borderColor="#d1d5db"
           borderWidth={1}
           color="#1a1a1a"
-          size="$4"
+          size="$3"
           onPress={handleCreateAccount}
           borderRadius={8}
           fontWeight="600"
